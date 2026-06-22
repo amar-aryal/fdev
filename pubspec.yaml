@@ -1,0 +1,11 @@
+name: fdev
+description: Ultimate Flutter developer tools CLI. Streamline build_runner, Swagger/OpenAPI code generator, Android signing keystores, CocoaPods updater, and developer productivity workflows.
+repository: https://github.com/rahulshahDEV/fdev
+version: 0.1.3
+
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+executables:
+  fdev: fdev
