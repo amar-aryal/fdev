@@ -8,9 +8,15 @@
 - run `flutter clean` followed by `flutter pub get`
 - build APKs with flavor, target, build mode, defines, and split ABI flags
 - build Android app bundles with flavor, target, build mode, and defines
+- build iOS apps with flavor, target, build mode, and defines
+- generate launcher icons via `flutter_launcher_icons`
+- generate native splash screens via `flutter_native_splash`
+- select dev/stage/prod `.env` files into `.env`
+- write fastlane-style APK metadata and changelogs from the pubspec version
 - run the iOS pod update workflow
 - generate Android upload keystores and show SHA fingerprints
 - generate plain Dart API response models from Swagger/OpenAPI JSON
+- watch a local Swagger file and regenerate models on change
 - check local Dart/Flutter setup
 
 This package is intentionally dependency-free. The generated API models also avoid external dependencies and include manual `fromJson` and `toJson` methods.
@@ -50,6 +56,11 @@ Here is the compatibility matrix for `fdev` features across operating systems:
 | **`fdev clean`** | ✅ | ✅ | ✅ | Clean project build cache & fetch packages |
 | **`fdev apk`** | ✅ | ✅ | ✅ | Android APK builds |
 | **`fdev appbundle`** | ✅ | ✅ | ✅ | Android App Bundle builds |
+| **`fdev ios`** | ✅ | ❌ | ❌ | iOS builds require macOS + Xcode |
+| **`fdev icons`** | ✅ | ✅ | ✅ | Launcher icon generation |
+| **`fdev splash`** | ✅ | ✅ | ✅ | Native splash generation |
+| **`fdev env`** | ✅ | ✅ | ✅ | .env file selection |
+| **`fdev release-notes`** | ✅ | ✅ | ✅ | APK metadata and changelog |
 | **`fdev signapk`** | ✅ | ✅ | ✅ | Generate Android signing keys |
 | **`fdev sha`** | ✅ | ✅ | ✅ | Show keystore SHA fingerprints |
 | **`fdev swagger`** | ✅ | ✅ | ✅ | Swagger/OpenAPI model generator |
@@ -168,6 +179,132 @@ fdev appbundle dev --debug
 fdev appbundle dev --profile
 ```
 
+### Build iOS App
+
+Default release build:
+
+```sh
+fdev ios
+```
+
+With flavor and target:
+
+```sh
+fdev ios --flavor dev --target lib/main_dev.dart
+```
+
+With defines:
+
+```sh
+fdev ios prod -t lib/main_prod.dart --dart-define API_ENV=prod
+```
+
+Debug/profile:
+
+```sh
+fdev ios dev --debug
+fdev ios dev --profile
+```
+
+> iOS builds require macOS with Xcode installed.
+
+### Generate Launcher Icons
+
+From a Flutter project root (after adding `flutter_launcher_icons` as a
+`dev_dependency`):
+
+```sh
+fdev icons
+```
+
+With a custom config file:
+
+```sh
+fdev icons -f flutter_launcher_icons.yaml
+```
+
+With a web output prefix:
+
+```sh
+fdev icons -p public/
+```
+
+### Generate Native Splash
+
+From a Flutter project root (after adding `flutter_native_splash` as a
+`dev_dependency`):
+
+```sh
+fdev splash
+```
+
+For a flavor:
+
+```sh
+fdev splash --flavor dev
+```
+
+Remove the splash and restore defaults:
+
+```sh
+fdev splash --remove --flavor dev
+```
+
+### Select Environment File
+
+From a Flutter project root:
+
+```sh
+fdev env dev
+```
+
+This writes `.env` from `.env.dev` (or `.env_dev`). It also looks in `env/`,
+`envs/`, and `config/`.
+
+List available environments:
+
+```sh
+fdev env --list
+```
+
+Print `--dart-define` flags for the selected environment:
+
+```sh
+fdev env prod --flutter-define
+```
+
+Write to a custom output path:
+
+```sh
+fdev env stage -o .env.local
+```
+
+### Write Release Notes
+
+From a Flutter project root:
+
+```sh
+fdev release-notes --notes "Fix login bug"
+```
+
+This reads `version: <name>+<build>` from `pubspec.yaml` and writes a fastlane
+changelog to `fastlane/metadata/android/en-US/changelogs/<build>.txt`.
+
+Override version and build number:
+
+```sh
+fdev release-notes --version 1.2.3 --build-number 4
+```
+
+Custom output directory:
+
+```sh
+fdev release-notes -o fastlane/metadata/android/en-GB --notes "Bug fixes"
+```
+
+If `--notes` is omitted, `fdev` reads `RELEASE_NOTES.md`, then falls back to
+`Release <version>`.
+
 ### Update iOS Pods
 
 From a Flutter project root:
@@ -277,6 +414,18 @@ From a local JSON file:
 fdev swagger --file swagger.json --out lib/data/models/api_models.dart
 ```
 
+Watch a local Swagger file and regenerate on change:
+
+```sh
+fdev swagger --file swagger.json --watch
+```
+
+With a custom poll interval (seconds):
+
+```sh
+fdev swagger --file swagger.json --watch --interval 1
+```
+
 The generator reads:
 
 - OpenAPI 3 `components.schemas`
@@ -311,10 +460,10 @@ dart pub global activate fdev
 
 ### Developing & Publishing Updates
 
-1. **Modify Code**: Edit files under `lib/src/` or add new commands in `lib/src/cli.dart`.
+1. **Modify Code**: Edit files under `lib/src/`; add command implementations in the relevant `lib/src/cli/*_command*.dart` file.
 2. **Version Bump**:
    - Update `version` in `pubspec.yaml`.
-   - Update `cliVersion` in `lib/src/cli.dart`.
+   - Update `cliVersion` in `lib/src/cli/version.dart`.
    - Document changes in `CHANGELOG.md`.
 3. **Format & Analyze**:
    ```sh
@@ -337,9 +486,6 @@ dart pub global activate fdev
 
 ## Recommended Future Features
 
-- `fdev ios` for flavor-based iOS builds
-- `fdev icons` for launcher icon generation
-- `fdev splash` for native splash generation
-- `fdev env` for selecting dev/stage/prod `.env` files
-- `fdev release-notes` for APK metadata and changelog output
-- `fdev swagger --watch` to regenerate when a local Swagger file changes
+- `fdev run` to launch a flavor/target on a connected device
+- `fdev test` to run widget and unit tests with coverage
+- `fdev doctor` checks for Xcode, CocoaPods, and Android SDK versions

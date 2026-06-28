@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.4
+
+- Added `fdev ios` for flavor-based iOS builds (macOS only).
+- Added `fdev icons` for launcher icon generation via flutter_launcher_icons.
+- Added `fdev splash` for native splash screen generation via flutter_native_splash.
+- Added `fdev env` for selecting dev/stage/prod `.env` files into `.env`.
+- Added `fdev release-notes` for APK metadata and changelog output.
+- Added `fdev swagger --watch` to regenerate models when a local Swagger file changes.
+- Fixed `CliFailure` exceptions from subcommand handlers escaping the top-level
+  try/catch by awaiting handler invocations.
+
 ## 0.1.3
 
 - Renamed package to `fdev` for a shorter, cleaner name on pub.dev.
