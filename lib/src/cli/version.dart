@@ -1,6 +1,6 @@
 part of '../cli.dart';
 
-const String cliVersion = '0.1.4';
+const String cliVersion = '0.1.5';
 
 bool _isVersion(String value) =>
     value == '-v' || value == '--version' || value == 'version';

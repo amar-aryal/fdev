@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+- Added `fdev init` command to automate Cursor, Caveman, and Graphify setup.
+
 ## 0.1.4
 
 - Added `fdev ios` for flavor-based iOS builds (macOS only).
